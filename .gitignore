@@ -1,4 +1,5 @@
 *.pyc
+*.txt
 /code_bk
 /AllData
 /models
