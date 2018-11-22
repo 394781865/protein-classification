@@ -13,7 +13,7 @@ python3 main_keras.py \
     --learning_rate 1e-02 \
     --check_root $check_root \
     --check_name 'weights.{epoch:02d}-{val_f1_fix:.3f}.hdf5' --epochs 5 \
-    --batch_size 16 \
+    --batch_size 24 \
     --stage 1 \
     2>&1 | tee ./log/$cur_date/first_stage.txt
 
@@ -27,6 +27,6 @@ python3 main_keras.py \
     --learning_rate 1e-03 \
     --check_root $check_root \
     --check_name 'weights.{epoch:02d}-{val_f1_fix:.3f}.hdf5' --epochs 60 \
-    --batch_size 16 \
+    --batch_size 24 \
     --stage 2 \
     2>&1 | tee ./log/$cur_date/second_stage.txt

@@ -59,7 +59,7 @@ def create_model(input_shape, n_out, lr=1e-04):
     return model, base_model, graph
 
 # 训练
-def train(train_dataset_info, params):
+def train(train_dataset_info, params, train_indexes, valid_indexes):
     '''
     输入:
         train_dataset_info : 训练数据信息
@@ -125,14 +125,6 @@ def train(train_dataset_info, params):
         verbose=1,
         min_lr=0.00001
     )
-
-    # split and shuffle data
-    np.random.seed(2018)
-    indexes = np.arange(train_dataset_info.shape[0])
-    np.random.shuffle(indexes)
-    split_samples = int(len(indexes)*0.9)
-    train_indexes = indexes[:split_samples]
-    valid_indexes = indexes[split_samples:]
 
     # create train and valid datagens
     dataGen = data_generator()
@@ -243,8 +235,30 @@ if __name__ == '__main__':
     pic_root_path = '../AllData/train'
     train_dataset_info = load_csv(pic_root_path, csv_root_path)
 
+    # 拆分训练集
+    if args.stage == 1:
+        np.random.seed(2018)
+        indexes = np.arange(train_dataset_info.shape[0])
+        np.random.shuffle(indexes)
+        split_samples = int(len(indexes)*0.9)
+        train_indexes = indexes[:split_samples]
+        valid_indexes = indexes[split_samples:]
+        file = open('./train_valid_indexes.txt','w')
+        for i in train_indexes:
+            file.write(str(i)+' ')
+        file.write('\n')
+        for i in valid_indexes:
+            file.write(str(i)+' ')
+    else:
+        file = open('./train_valid_indexes.txt', 'r')
+        contents = file.readlines()
+        train_content = contents[0].strip().split(' ')
+        valid_content = contents[1].strip().split(' ')
+        train_indexes = [int(i) for i in train_content]
+        valid_indexes = [int(i) for i in valid_content]
+
     # 训练
-    history = train(train_dataset_info, args)
+    history = train(train_dataset_info, args, train_indexes, valid_indexes)
 
     # 可视化训练曲线图
     #plot_history(history, args)
