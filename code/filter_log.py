@@ -2,12 +2,12 @@
 
 import os
 
-file = './log/1542798002/second_stage.txt'
+file = './log/1542810623/second_stage.txt'
 f = open(file, 'r')
 for line in f.readlines():
     line = line.strip()
     try:
-        if int(line.split('/')[0])<1748:
+        if int(line.split('/')[0])<1166:
             continue
     except:
         print(line)
