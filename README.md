@@ -7,6 +7,7 @@
 - [x] 4通道输入，keras load weight的时候按名称：https://blog.csdn.net/dongapple/article/details/77530212
 - [ ] 两个分支，https://www.kaggle.com/kwentar/two-branches-xception-lb-0-3
 - [ ] 转化成多个二分类，训练28个小模型
+- [ ] 后处理，不同阈值
 
 ## 注意
 - skimage读入的图片是：(h,w,c), RGB, uint8(255)
