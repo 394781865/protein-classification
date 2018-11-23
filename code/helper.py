@@ -146,8 +146,8 @@ class data_generator():
         assert batch_images.shape[0]==batch_labels.shape[0]
         assert batch_images.shape[0]>k
 
-        import keras.backend as K
-        K.set_learning_phase(0)
+        #import keras.backend as K
+        #K.set_learning_phase(0)
         # calculate loss
         losses_dict = {}
         for i in range(batch_images.shape[0]):
@@ -155,17 +155,16 @@ class data_generator():
             y_true = batch_labels[i]
             #model._make_predict_function()
             with graph.as_default():
-                #print(model.get_weights()[0][0][0][0][:4])
+                #print(model.get_weights()[0][0,0,0,:4])
                 y_predict = model.predict(img[np.newaxis])[0]
 
             loss = self.cal_loss(y_true, y_predict)
             losses_dict[loss] = i
 
-        K.set_learning_phase(1)
+        #K.set_learning_phase(1)
         # get top k loss sample
         keys = losses_dict.keys()
-        sorted(keys)
-        indexes = [losses_dict[key] for key in keys]
+        indexes = [losses_dict[key] for key in sorted(keys)]
         indexes = indexes[len(indexes)-k:]
 
         return batch_images[indexes], batch_labels[indexes]
@@ -192,8 +191,8 @@ class data_generator():
                 else:
                     tn += (1-f)
                     fp += f
-            f1 = 2*tp / 2*tp+fp+fn
-            loss = -f1
+            f1 = 2*tp / (2*tp+fp+fn+10e-09)
+            loss = 1-f1
         elif type=='category_crossentropy':
             loss = 0
             for t, f in zip(y_true, y_predict):

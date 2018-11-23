@@ -128,14 +128,14 @@ def train(train_dataset_info, params, train_indexes, valid_indexes):
 
     # create train and valid datagens
     dataGen = data_generator()
-    train_gen = dataGen.create_train(
+    train_gen = dataGen.create_train_ohem(
         train_dataset_info[train_indexes],
         batch_size,
         input_shape,
         augument=True,
-        preprocessing_function=preprocess_input
-        #model=model,
-        #graph=graph
+        preprocessing_function=preprocess_input,
+        model=model,
+        graph=graph
     )
     valid_gen = dataGen.create_train(
         train_dataset_info[valid_indexes],
