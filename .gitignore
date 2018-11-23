@@ -1,5 +1,6 @@
 *.pyc
 *.txt
+*.csv
 /code_bk
 /AllData
 /models
