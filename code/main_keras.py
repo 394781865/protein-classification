@@ -14,13 +14,14 @@ from keras.models import load_model
 from keras.layers import Activation, Dropout, Flatten, Dense, BatchNormalization
 
 from my_keras_model_zoo.resnet import ResNet, preprocess_input
+#from my_keras_model_zoo.densenet import DenseNet, preprocess_input
 
 from keras.callbacks import ModelCheckpoint,ReduceLROnPlateau
 from keras import metrics
 from keras.optimizers import Adam, SGD
 from keras import backend as K
 from keras.layers.pooling import GlobalMaxPooling2D, GlobalAveragePooling2D
-from keras.layers import Flatten
+from keras.layers import Flatten, add, concatenate
 from keras.models import Model
 import keras
 import tensorflow as tf
@@ -28,8 +29,11 @@ from read_h5 import get_weights
 
 # 获得模型
 def create_model(input_shape, n_out, lr=1e-04):
+    #weight_path = '../pretrained_model/densenet121_weights_tf_dim_ordering_tf_kernels_notop.h5'
+    #weight_path = '../pretrained_model/resnet101_weights_tf_dim_ordering_tf_kernels_notop.h5'
     weight_path = '../pretrained_model/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
     resnet = ResNet()
+    #densenet = DenseNet()
     base_model = resnet.resnet50(
         input_shape=input_shape,
         weights=weight_path
@@ -38,6 +42,8 @@ def create_model(input_shape, n_out, lr=1e-04):
         print('reload')
         init_weights = list()
         name_list = ['conv1/conv1_W_1:0', 'conv1/conv1_b_1:0']
+        #name_list = ['conv1/conv/conv1/conv_1/kernel:0']
+        #name_list = ['conv1/conv/conv1/conv/kernel:0']
         for name in name_list:
             init_weight = get_weights(weight_path, name)
             init_weights.append(init_weight)
@@ -45,13 +51,16 @@ def create_model(input_shape, n_out, lr=1e-04):
         layer.set_weights(init_weights)
     x = base_model.output
     x = Flatten()(x)
-    #x = GlobalAveragePooling2D()(x)
+    #x_1 = GlobalAveragePooling2D()(x)
+    #x_2 = GlobalMaxPooling2D()(x)
+    #x = add([x_1, x_2])
+    #x = concatenate([x_1, x_2])
+    #x = BatchNormalization()(x)
+    #x = Dense(512, activation='relu')(x)
+    #x = Dropout(0.5)(x)
     x = BatchNormalization()(x)
     x = Dense(256, activation='relu')(x)
-    x = Dropout(0.6)(x)
-    #x = BatchNormalization()(x)
-    #x = Dense(256, activation='relu')(x)
-    #x = Dropout(0.5)(x)
+    x = Dropout(0.5)(x)
     predictions = Dense(n_out, activation='sigmoid')(x)
     model = Model(input=base_model.input, output=predictions)
 
@@ -128,14 +137,14 @@ def train(train_dataset_info, params, train_indexes, valid_indexes):
 
     # create train and valid datagens
     dataGen = data_generator()
-    train_gen = dataGen.create_train_ohem(
+    train_gen = dataGen.create_train(
         train_dataset_info[train_indexes],
         batch_size,
         input_shape,
         augument=True,
         preprocessing_function=preprocess_input,
-        model=model,
-        graph=graph
+        #model=model,
+        #graph=graph
     )
     valid_gen = dataGen.create_train(
         train_dataset_info[valid_indexes],

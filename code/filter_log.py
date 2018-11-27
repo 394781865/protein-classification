@@ -2,7 +2,7 @@
 
 import os
 
-file = './log/1542810623/second_stage.txt'
+file = './log/1543146826/second_stage.txt'
 f = open(file, 'r')
 for line in f.readlines():
     line = line.strip()
