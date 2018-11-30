@@ -59,8 +59,8 @@ def create_model(input_shape, n_out, lr=1e-04):
     #x = Dense(512, activation='relu')(x)
     #x = Dropout(0.5)(x)
     x = BatchNormalization()(x)
-    x = Dense(256, activation='relu')(x)
-    x = Dropout(0.5)(x)
+    x = Dense(512, activation='relu')(x)
+    x = Dropout(0.2)(x)
     predictions = Dense(n_out, activation='sigmoid')(x)
     model = Model(input=base_model.input, output=predictions)
 
@@ -113,7 +113,7 @@ def train(train_dataset_info, params, train_indexes, valid_indexes):
             layer.trainable = False
 
     model.compile(loss=f1_loss,#loss="binary_crossentropy",
-                  optimizer=SGD(lr, momentum=0.9), #clip_norm=1.0),
+                  optimizer=Adam(),#SGD(lr, momentum=0.9), #clip_norm=1.0),
                   metrics=[acc(params.predict_threshold), precision(params.predict_threshold), recall(params.predict_threshold), f1(params.predict_threshold)])
     model.summary()
 
@@ -162,7 +162,7 @@ def train(train_dataset_info, params, train_indexes, valid_indexes):
         validation_steps=1*(len(valid_indexes) // batch_size + 1),
         epochs=epochs,
         verbose=1,
-        callbacks=[checkpointer, lr_reduce]
+        callbacks=[checkpointer]#, lr_reduce]
     )
 
     return history
