@@ -60,7 +60,7 @@ def create_model(input_shape, n_out, lr=1e-04):
     #x = Dropout(0.5)(x)
     x = BatchNormalization()(x)
     x = Dense(512, activation='relu')(x)
-    x = Dropout(0.2)(x)
+    x = Dropout(0.5)(x)
     predictions = Dense(n_out, activation='sigmoid')(x)
     model = Model(input=base_model.input, output=predictions)
 
@@ -113,7 +113,7 @@ def train(train_dataset_info, params, train_indexes, valid_indexes):
             layer.trainable = False
 
     model.compile(loss=f1_loss,#loss="binary_crossentropy",
-                  optimizer=Adam(),#SGD(lr, momentum=0.9), #clip_norm=1.0),
+                  optimizer=SGD(lr, momentum=0.9), #clip_norm=1.0),
                   metrics=[acc(params.predict_threshold), precision(params.predict_threshold), recall(params.predict_threshold), f1(params.predict_threshold)])
     model.summary()
 
@@ -182,17 +182,19 @@ def predict(params):
     predict_threshold = params.predict_threshold
     lr = params.learning_rate
     dataGen = data_generator()
-    check_path = get_check_path(params.check_root)
+    #check_path = get_check_path(params.check_root)
     #check_path = get_check_path('../models/1542636132')
-    #check_path = './weights.02-0.03.hdf5'
+    check_path = '../models/1543563875/weights.95-0.344.hdf5'
     #print(check_path)
 
     # load model
     model, _, _ = create_model(input_shape=input_shape, n_out=n_out, lr=lr)
-    model.compile(loss=focal_loss_binary,#"binary_crossentropy",
-                  optimizer=SGD(lr, momentum=0.9),
-                  metrics=[acc(predict_threshold), precision(predict_threshold), recall(predict_threshold), f1(predict_threshold)])
     model.load_weights(check_path)
+
+    # get threshold
+    if params.useDiffT:
+        from get_best_th import getOptimalT_main
+        T = getOptimalT_main(model, input_shape)
 
     # predict
     submit = pd.read_csv('../AllData/sample_submission.csv')
@@ -205,7 +207,10 @@ def predict(params):
         #show_pic(image)
         score_predict = model.predict(image[np.newaxis])[0]
         #print(score_predict)
-        label_predict = np.arange(n_out)[score_predict >= predict_threshold]
+        if params.useDiffT:
+            label_predict = np.arange(n_out)[score_predict > T]
+        else:
+            label_predict = np.arange(n_out)[score_predict > predict_threshold]
         if len(label_predict) == 0:
             label = np.argmax(score_predict)
             label_predict = list()
@@ -221,8 +226,8 @@ def get_args():
     import argparse
     parser = argparse.ArgumentParser(description='params')
     parser.add_argument('--channel', type=int, default=4)
-    parser.add_argument('--height', type=int, default=256)
-    parser.add_argument('--width', type=int, default=256)
+    parser.add_argument('--height', type=int, default=224)
+    parser.add_argument('--width', type=int, default=224)
     parser.add_argument('--n_out', type=int, default=28)
     parser.add_argument('--predict_threshold', type=float, default=0.4)
     parser.add_argument('--learning_rate', type=float, default=1e-04)
@@ -232,6 +237,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--save_pic_root', type=str, default='../train_plot')
     parser.add_argument('--stage', type=int, default=1)
+    parser.add_argument('--useDiffT', type=int, default=1)
     args = parser.parse_args()
     return args
 
@@ -267,12 +273,12 @@ if __name__ == '__main__':
         valid_indexes = [int(i) for i in valid_content]
 
     # 训练
-    history = train(train_dataset_info, args, train_indexes, valid_indexes)
+    #history = train(train_dataset_info, args, train_indexes, valid_indexes)
 
     # 可视化训练曲线图
     #plot_history(history, args)
 
-    #predict(args)
+    predict(args)
     if not args.stage == 1:
         # 预测
         predict(args)

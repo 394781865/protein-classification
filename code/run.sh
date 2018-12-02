@@ -15,6 +15,7 @@ python3 main_keras.py \
     --check_name 'weights.{epoch:02d}-{val_f1_fix:.3f}.hdf5' --epochs 5 \
     --batch_size 32 \
     --stage 1 \
+    --useDiffT 0 \
     2>&1 | tee ./log/$cur_date/first_stage.txt
 
 # last, train all layer, base with lr, middle with lr/5, head with lr/10
@@ -29,4 +30,5 @@ python3 main_keras.py \
     --check_name 'weights.{epoch:02d}-{val_f1_fix:.3f}.hdf5' --epochs 100 \
     --batch_size 32 \
     --stage 2 \
+    --useDiffT 0 \
     2>&1 | tee ./log/$cur_date/second_stage.txt
