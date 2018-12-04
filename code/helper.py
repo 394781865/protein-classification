@@ -327,12 +327,12 @@ if __name__ == '__main__':
     ii = dataGen.create_train(
         train_dataset_info,
         batch_size,
-        (256, 256, 4),
+        (224, 224, 4),
         augument=True
     )
 
-    for _ in range(train_dataset_info.shape[0]//batch_size):
-        next(ii)
+#    for _ in range(train_dataset_info.shape[0]//batch_size):
+#        next(ii)
 
     # cal train data mean and std
     x_tot = np.zeros(4)

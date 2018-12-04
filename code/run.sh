@@ -9,7 +9,7 @@ python3 main_keras.py \
     --height 224 \
     --width 224 \
     --n_out 28 \
-    --predict_threshold 0.65 \
+    --predict_threshold 0.5 \
     --learning_rate 1e-02 \
     --check_root $check_root \
     --check_name 'weights.{epoch:02d}-{val_f1_fix:.3f}.hdf5' --epochs 5 \
@@ -24,11 +24,11 @@ python3 main_keras.py \
     --height 224 \
     --width 224 \
     --n_out 28 \
-    --predict_threshold 0.65 \
+    --predict_threshold 0.5 \
     --learning_rate 1e-03 \
     --check_root $check_root \
     --check_name 'weights.{epoch:02d}-{val_f1_fix:.3f}.hdf5' --epochs 100 \
     --batch_size 32 \
     --stage 2 \
-    --useDiffT 0 \
+    --useDiffT 1 \
     2>&1 | tee ./log/$cur_date/second_stage.txt
